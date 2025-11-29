@@ -1,20 +1,25 @@
 pipeline {
     agent any
-    // Define Global Variable
+    // Define Parameters
+    parameters {
+        string(name: 'VERSION', defaultValue: '', description: 'version to deploy')
+        booleanParam(name: 'executeTests', defaultValue: true, description: 'Run tests?')
+    }
     environment {
         NEW_VERSION = '1.3.0'
     }
     stages {
         stage('Build') {
             steps {
-                echo 'Building Project'
-                echo "Building version ${NEW_VERSION}" // Using the variable
+                echo "Building version ${NEW_VERSION}"
+                // Windows users use 'bat', Mac/Linux use 'sh'
+                bat 'echo "Simulating NVM install or Tool usage"' 
             }
         }
         stage('Test') {
-            // Add Conditional
+            // Only run if the checkbox is checked
             when {
-                expression { return env.NEW_VERSION == '1.3.0' } // Example condition
+                expression { return params.executeTests }
             }
             steps {
                 echo 'Testing Project'
@@ -22,9 +27,8 @@ pipeline {
         }
         stage('Deploy') {
             steps {
-                echo 'Deploying....'
+                echo "Deploying version ${params.VERSION}"
             }
         }
     }
-    post { always { echo 'Done' } }
 }
